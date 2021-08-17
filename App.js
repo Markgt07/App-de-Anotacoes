@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useState } from 'react';
-import { Button, StyleSheet, Text, View,TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Button, StyleSheet, Text, View,TouchableOpacity,TextInput, AsyncStorage } from 'react-native';
 
 
   
@@ -8,19 +8,64 @@ import { Button, StyleSheet, Text, View,TouchableOpacity } from 'react-native';
   export default function App() {
 
     const  [estado,setEstado] = useState('leitura');
-    const  [anotacao,setAnotacao] = useState('Lorem Ipsum é simplesmente um texto fictício da indústria de impressão e composição. Lorem Ipsum tem sido o texto fictício padrão da indústria desde 1500, quando um impressor desconhecido pegou um modelo de impressão e embaralhou-o para fazer um livro de amostra de tipos. Ele sobreviveu não apenas cinco séculos, mas também ao salto para a composição eletrônica, permanecendo essencialmente inalterado. Ele foi popularizado na década de 1960 com o lançamento de folhas de Letraset contendo passagens de Lorem Ipsum e, mais recentemente, com software de editoração eletrônica como Aldus PageMaker incluindo versões de Lorem Ipsum.');
+    const  [anotacao,setAnotacao] = useState('');
 
+    useEffect (()=>{
+      //quando inicializar o app queremos que leia a key anotacao.
+      (async()=>{
+        try{
+            const anotacaoleitura = await AsyncStorage.getItem('anotacao');
+            setAnotacao(anotacaoleitura);
+
+       }catch(error){
+         
+       }
+      })();
+    },[])
+
+    setData = async()=>{
+      try{
+      await AsyncStorage.setitem('anotacao',anotacao);
+    }catch(error){
+
+    }
+    alert('sua anotação foi salva')
+    }
+
+    function atualizartexto(){
+      setEstado('leitura');
+      setData();
+    }
     if(estado == 'leitura'){
     return (
   
       <View>
 
-        <StatusBar style='light'/>
-        <View style={styles.header}><Text style={{textAlign:'center',color:'white',fontSize:18}}>Aplicativo Anotação</Text></View>
+        <StatusBar hidden/>
 
-        <View style={{padding:20}}><Text style={styles.anotacao}>{anotacao}</Text></View>
-
-        <TouchableOpacity onPress={()=> setEstado('atualizando')} style={styles.btnAnotacao}><Text style={styles.btnAnotacaoTexto}>+</Text></TouchableOpacity>
+        <View style={styles.header}>  
+          <Text style={{textAlign:'center',color:'white',fontSize:18}}> 
+            Aplicativo Anotação
+          </Text> 
+        </View>
+        {
+          (anotacao !='')?
+        <View style={{padding:20}}> 
+          <Text style={styles.anotacao}>
+            {anotacao}
+          </Text>
+        </View>
+        :
+        <View style={{padding:20}}><Text style={{opacity:0.3}}>nenhuma anotação encontrada :</Text></View>
+        }
+        <TouchableOpacity onPress={()=> setEstado('atualizando')} style={styles.btnAnotacao}>
+          {
+          (anotacao == "")?
+          <Text style={styles.btnAnotacaoTexto}>+</Text>
+          :
+          <Text style={{fontSize:12,color:'white',textAlign:'center',marginTop:16}}>editar</Text>
+          }
+        </TouchableOpacity>
         
       </View>
 
@@ -29,12 +74,12 @@ import { Button, StyleSheet, Text, View,TouchableOpacity } from 'react-native';
     return(
     <View>
 
-        <StatusBar style='light'/>
+        <StatusBar hidden/>
         <View style={styles.header}><Text style={{textAlign:'center',color:'white',fontSize:18}}>Aplicativo Anotação</Text></View>
 
-        
+        <TextInput autoFocus={true} onChangeText={(text)=>setAnotacao(text)} style={{padding:20,height:300,textAlignVertical:'top'}} multiline={true} numberOfLines={5} value={anotacao}></TextInput>
 
-        <TouchableOpacity onPress={()=> setEstado('leitura')} style={styles.btnAnotacaoSalvar}><Text style={{textAlign:"center",color:'white'}}>salvar</Text></TouchableOpacity>
+        <TouchableOpacity onPress={()=> atualizartexto()} style={styles.btnAnotacaoSalvar}><Text style={{textAlign:"center",color:'white'}}>salvar</Text></TouchableOpacity>
         
       </View>
       );
@@ -70,7 +115,7 @@ const styles = StyleSheet.create({
     btnAnotacaoSalvar:{
       position:'absolute',
       right:20,
-      bottom:-680,
+      bottom: '-100%',
       width: 50,
       paddingTop:10,
       paddingBottom:20,
