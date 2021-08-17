@@ -18,7 +18,7 @@ import { Button, StyleSheet, Text, View,TouchableOpacity,TextInput, AsyncStorage
             setAnotacao(anotacaoleitura);
 
        }catch(error){
-         
+
        }
       })();
     },[])
@@ -126,4 +126,5 @@ const styles = StyleSheet.create({
     
 
 });
+//primeira fase concluida
 
